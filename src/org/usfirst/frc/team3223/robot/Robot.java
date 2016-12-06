@@ -28,6 +28,7 @@ public class Robot extends IterativeRobot {
     
     private Joystick joystick;
     private SpeedController left_motor, right_motor;
+    long startTime = System.currentTimeMillis();
 
     /**
      * This function is run when the robot is first started up and should be
@@ -46,13 +47,22 @@ public class Robot extends IterativeRobot {
     }
 
     public void autonomousInit() {
-        autonomousCommand.start(); // schedule the autonomous command (example)
+        startTime = System.currentTimeMillis();
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
+    	
+    	long currentTime = System.currentTimeMillis();
+    	if(currentTime<=startTime+5000){
+    		left_motor.set(0.5);
+    		right_motor.set(-0.5);
+    	}else{
+    		left_motor.set(0);
+    		right_motor.set(0);
+    	}
         
     }
 
