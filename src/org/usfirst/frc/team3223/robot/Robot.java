@@ -28,6 +28,9 @@ public class Robot extends IterativeRobot {
     
     private Joystick joystick;
     private SpeedController left_motor, right_motor;
+    
+    private SpeedController other_left, other_right;
+    
     long startTime = System.currentTimeMillis();
 
     /**
@@ -37,8 +40,10 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         // Initialize all subsystems
         joystick = new Joystick(0);
-        left_motor = new Talon(0);
-		right_motor = new Talon(1);
+        left_motor = new Talon(3);
+		right_motor = new Talon(0);
+		other_left = new Talon(2);
+		other_right = new Talon(1);
         // instantiate the command used for the autonomous perio
 
         // Show what command your subsystem is running on the SmartDashboard
@@ -79,7 +84,9 @@ public class Robot extends IterativeRobot {
         System.out.println("r:"+r);
         System.out.println("l:"+l);
         left_motor.set(l);
+        other_left.set(l);
         right_motor.set(r);
+        other_right.set(r);
     }
     
     /**
