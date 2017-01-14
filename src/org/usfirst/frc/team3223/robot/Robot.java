@@ -45,17 +45,7 @@ public class Robot extends IterativeRobot {
         
     }
 
-    public void autonomousInit() {
-        autonomousCommand.start(); // schedule the autonomous command (example)
-    }
-
-    /**
-     * This function is called periodically during autonomous
-     */
-    public void autonomousPeriodic() {
-        
-    }
-
+  
     public void teleopInit() {
     	
     }
@@ -76,13 +66,12 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    	if(joystick.getRawButton(1)){
-    		left_motor.set(0.5);
-    	}
-    	if(joystick.getRawButton(2)){
-    		right_motor.set(0.5);
-    	}
-        
+    	double l = -joystick.getRawAxis(1);
+    	double r = joystick.getRawAxis(5);
+    	System.out.println("r:"+r);
+    	System.out.println("l:"+l);
+    	left_motor.set(l);
+    	right_motor.set(r);
     }
 
 	/**
