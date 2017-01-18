@@ -15,6 +15,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.tables.ITable;
+import edu.wpi.first.wpilibj.tables.ITableListener;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,9 +26,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends IterativeRobot {
+public class Robot extends IterativeRobot implements ITableListener{
     Command autonomousCommand;
-    
+    NetworkTable networkTable;
+    double motorSpeed = 0;
     private Joystick joystick;
     private SpeedController left_motor, right_motor;
 
@@ -38,6 +42,8 @@ public class Robot extends IterativeRobot {
         joystick = new Joystick(0);
         left_motor = new Talon(0);
 		right_motor = new Talon(1);
+		networkTable = NetworkTable.getTable("SmartDashboard");
+		networkTable.addTableListener(this);
         // instantiate the command used for the autonomous perio
 
         // Show what command your subsystem is running on the SmartDashboard
@@ -54,12 +60,15 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+    	/*
     	double l = -joystick.getRawAxis(1);//y of l stick
         double r = joystick.getRawAxis(5);//y of r stick
         System.out.println("r:"+r);
         System.out.println("l:"+l);
         left_motor.set(l);
         right_motor.set(r);
+        */
+    	left_motor.set(motorSpeed);
     }
     
     /**
@@ -72,6 +81,11 @@ public class Robot extends IterativeRobot {
     	System.out.println("l:"+l);
     	left_motor.set(l);
     	right_motor.set(r);
+    }
+    @Override
+    public void valueChanged(ITable table, String name, Object value, boolean isNew) {
+    	if(name.equals("motorSpeed"))
+    		motorSpeed= (double) value;
     }
 
 	/**
