@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -29,10 +30,10 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 public class Robot extends IterativeRobot implements ITableListener{
     Command autonomousCommand;
     NetworkTable networkTable;
-    double motorSpeed = 0;
+    private double motorSpeed = 0;
+    private static final int L_PORT = 0, R_PORT = 1;
     private Joystick joystick;
     private SpeedController left_motor, right_motor;
-
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -40,8 +41,10 @@ public class Robot extends IterativeRobot implements ITableListener{
     public void robotInit() {
         // Initialize all subsystems
         joystick = new Joystick(0);
-        left_motor = new Talon(0);
-		right_motor = new Talon(1);
+        
+        left_motor = new Talon(L_PORT);
+		right_motor = new Talon(R_PORT);
+				
 		networkTable = NetworkTable.getTable("SmartDashboard");
 		networkTable.addTableListener(this);
         // instantiate the command used for the autonomous perio
