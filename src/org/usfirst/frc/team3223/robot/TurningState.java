@@ -1,6 +1,6 @@
 package org.usfirst.frc.team3223.robot;
 
-public enum TurningStates {
+public enum TurningState {
 	Start,
 	Calculate,
 	Drive,
