@@ -5,11 +5,17 @@ public class TurningStateMachine {
 	VisionState visionState;
 	TurningState state;
 	long startTime;
+	RecorderContext recorderContext;
+	double velocity;
 	
 	public TurningStateMachine(VisionState visionState) {
 		profiler = new RotationalProfiler();
 		this.visionState = visionState;
-		
+		recorderContext =  new RecorderContext("robostate");
+		recorderContext.add("velocity", () -> velocity);
+		recorderContext.add("time1", () -> profiler.t1);
+		recorderContext.add("time2", () -> profiler.t2);
+		recorderContext.add("time3", () -> profiler.t3);
 		state = TurningState.Start;
 		
 	}
@@ -30,9 +36,9 @@ public class TurningStateMachine {
 			break;
 		case Drive:
 			long timeDelta = currentTime - startTime;
-			double velocity = profiler.getVelocity(timeDelta);
+			velocity = profiler.getVelocity(timeDelta);
 			// do something with velocity
-			
+			recorderContext.tick();
 			if(profiler.isDone(timeDelta)) {
 				state = TurningState.End;
 			}

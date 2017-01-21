@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -24,11 +25,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
-    Command autonomousCommand;
     
     private Joystick joystick;
-    private SpeedController left_motor, right_motor;
     long startTime = System.currentTimeMillis();
+    RobotConfiguration robotConfig;
+    NetworkTable networkTable;
+    TurningStateMachine turningStateMachine;
+    VisionState visionState;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -37,12 +40,11 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         // Initialize all subsystems
         joystick = new Joystick(0);
-        left_motor = new Talon(0);
-		right_motor = new Talon(1);
-        // instantiate the command used for the autonomous perio
-
-        // Show what command your subsystem is running on the SmartDashboard
-        //SmartDashboard.putData(drivetrain);
+        robotConfig = new RobotConfiguration();
+        networkTable = NetworkTable.getTable("SmartDashboard");
+        visionState = new VisionState();
+        visionState.thetaHighGoal = Math.toRadians(30);
+        turningStateMachine = new TurningStateMachine(visionState);
         
     }
 
@@ -53,18 +55,6 @@ public class Robot extends IterativeRobot {
     /**
      * This function is called periodically during autonomous
      */
-    public void autonomousPeriodic() {
-    	
-    	long currentTime = System.currentTimeMillis();
-    	if(currentTime<=startTime+5000){
-    		left_motor.set(0.5);
-    		right_motor.set(-0.5);
-    	}else{
-    		left_motor.set(0);
-    		right_motor.set(0);
-    	}
-        
-    }
 
     public void teleopInit() {
     	
@@ -74,24 +64,18 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	double l = -joystick.getRawAxis(1);//y of l stick
-        double r = joystick.getRawAxis(5);//y of r stick
-        System.out.println("r:"+r);
-        System.out.println("l:"+l);
-        left_motor.set(l);
-        right_motor.set(r);
+    	robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
+    	networkTable.putNumber("Joystick Input", joystick.getRawAxis(4));
+    	networkTable.putString("cwd", System.getProperty("user.dir"));
+    	turningStateMachine.run();
+    	
     }
     
     /**
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    	if(joystick.getRawButton(1)){
-    		left_motor.set(0.5);
-    	}
-    	if(joystick.getRawButton(2)){
-    		right_motor.set(0.5);
-    	}
+    	
         
     }
 

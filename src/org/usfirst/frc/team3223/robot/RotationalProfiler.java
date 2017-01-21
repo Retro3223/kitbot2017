@@ -1,18 +1,17 @@
 package org.usfirst.frc.team3223.robot;
 
 public class RotationalProfiler {
-	double accel = 2;
-	double vMaxTra = 4;
+	double accel = Math.toRadians(30)/1000/1000; //rad/ms^2
+	double vMaxTra = Math.toRadians(2.29)/1000; //rad/ms
 	boolean isTrapezoid;
 	long t1, t2, t3;
-	
 	double vMaxTri;
 	public void calculate(double angle){
 		vMaxTri = accel*Math.sqrt(angle/accel);
 		isTrapezoid = vMaxTri > vMaxTra;
 		if(isTrapezoid){
 			t1 = (long) (vMaxTra / accel);
-			t2 = (long) vMaxTra;
+			t2 = (long) ((angle/vMaxTra)-(vMaxTra/accel));
 			t3 = t1;
 		} else{
 			t1 = (long) (vMaxTri / accel);
