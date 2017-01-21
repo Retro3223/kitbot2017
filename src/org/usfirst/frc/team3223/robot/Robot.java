@@ -7,6 +7,8 @@
 
 package org.usfirst.frc.team3223.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SPI;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -32,6 +35,7 @@ public class Robot extends IterativeRobot {
     NetworkTable networkTable;
     TurningStateMachine turningStateMachine;
     VisionState visionState;
+    private AHRS ahrs;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -45,6 +49,7 @@ public class Robot extends IterativeRobot {
         visionState = new VisionState();
         visionState.thetaHighGoal = Math.toRadians(30);
         turningStateMachine = new TurningStateMachine(visionState);
+        ahrs = new AHRS(SPI.Port.kMXP);
         
     }
 
@@ -65,9 +70,8 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
     	robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
-    	networkTable.putNumber("Joystick Input", joystick.getRawAxis(4));
-    	networkTable.putString("cwd", System.getProperty("user.dir"));
     	turningStateMachine.run();
+    	networkTable.putNumber("yaw", ahrs.getYaw());
     	
     }
     
