@@ -13,6 +13,12 @@ public class TurningStateMachine {
 		this.visionState = visionState;
 		recorderContext =  new RecorderContext("robostate");
 		recorderContext.add("velocity", () -> velocity);
+        // actual velocity
+        // expected heading 
+        // actual heading (from navx)
+        // actual theta (from vision)
+        // elapsed time since turning started?
+        // motor outputs?
 		recorderContext.add("time1", () -> profiler.t1);
 		recorderContext.add("time2", () -> profiler.t2);
 		recorderContext.add("time3", () -> profiler.t3);
