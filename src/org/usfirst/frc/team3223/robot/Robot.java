@@ -35,7 +35,7 @@ public class Robot extends IterativeRobot {
     NetworkTable networkTable;
     TurningStateMachine turningStateMachine;
     VisionState visionState;
-    private AHRS ahrs;
+    
 
     /**
      * This function is run when the robot is first started up and should be
@@ -49,7 +49,7 @@ public class Robot extends IterativeRobot {
         visionState = new VisionState();
         visionState.thetaHighGoal = Math.toRadians(30);
         turningStateMachine = new TurningStateMachine(visionState);
-        ahrs = new AHRS(SPI.Port.kMXP);
+        
         
     }
 
