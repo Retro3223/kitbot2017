@@ -15,6 +15,11 @@ public class RobotConfiguration {
 			right_motor.set(voltage);
 	}
 	
+	public void forward(double voltage){
+		left_motor.set(voltage);
+		right_motor.set(-voltage);
+	}
+	
 	public void autonomous(long startTime){
 		long currentTime = System.currentTimeMillis();
     	if(currentTime<=startTime+5000){

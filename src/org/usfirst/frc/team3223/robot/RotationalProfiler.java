@@ -1,27 +1,30 @@
 package org.usfirst.frc.team3223.robot;
 
 public class RotationalProfiler {
-	double accel = Math.toRadians(30)/1000/1000; //rad/ms^2
-	double vMaxTra = Math.toRadians(2.29)/1000; //rad/ms
+	double accel = 0.01*1000; //rad/s^2
+	double vMaxTra = 2.3;//rad/s
 	boolean isTrapezoid;
-	long t1, t2, t3;
+	double t1, t2, t3;// in seconds
 	double vMaxTri;
+	//@param angle in radians
 	public void calculate(double angle){
 		vMaxTri = accel*Math.sqrt(angle/accel);
 		isTrapezoid = vMaxTri > vMaxTra;
 		if(isTrapezoid){
-			t1 = (long) (vMaxTra / accel);
-			t2 = (long) ((angle/vMaxTra)-(vMaxTra/accel));
+			t1 = (vMaxTra / accel);
+			t2 = ((angle/vMaxTra)-(vMaxTra/accel));
 			t3 = t1;
 		} else{
-			t1 = (long) (vMaxTri / accel);
+			t1 = (vMaxTri / accel);
 			t2 = 0;
 			t3 = t1;
 		}
 		
 	}
-	public double getVelocity(long time){
-        if(0 <= time && time < t1) {
+	//gives velocity in rad/s
+	public double getVelocity(long timeMs){
+        double time = timeMs/1000.00;
+		if(0 <= time && time < t1) {
             return accel * time;
         }else if(t1 <= time && time < t1 + t2) {
             return vMaxTra;
@@ -35,8 +38,8 @@ public class RotationalProfiler {
 		return 0;
 	}
 
-    public boolean isDone(long time) {
-        return time >= t1 + t2 + t3;
+    public boolean isDone(long timeMs) {
+        return timeMs/1000.00 >= t1 + t2 + t3;
     }
 }
 

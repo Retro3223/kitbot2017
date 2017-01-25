@@ -35,6 +35,7 @@ public class Robot extends IterativeRobot {
     NetworkTable networkTable;
     TurningStateMachine turningStateMachine;
     VisionState visionState;
+    SensorManager sensorManager;
     
 
     /**
@@ -47,8 +48,9 @@ public class Robot extends IterativeRobot {
         robotConfig = new RobotConfiguration();
         networkTable = NetworkTable.getTable("SmartDashboard");
         visionState = new VisionState();
+        sensorManager = new SensorManager();
         visionState.thetaHighGoal = Math.toRadians(30);
-        turningStateMachine = new TurningStateMachine(visionState);
+        turningStateMachine = new TurningStateMachine(visionState, sensorManager, robotConfig);
         
         
     }
@@ -69,10 +71,10 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
-    	turningStateMachine.run();
-    	networkTable.putNumber("yaw", ahrs.getYaw());
-    	
+    	//robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
+    	//robotConfig.forward(joystick.getRawAxis(1));
+    	turningStateMachine.run(); 
+    	//turningStateMachine.recorderContext.tick();
     }
     
     /**
