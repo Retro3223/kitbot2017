@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -54,6 +55,7 @@ public class Robot extends IterativeRobot {
     			rotationalValue = (sensorReadingsThread.getDistanceFromTape() / 160) * 0.5;
     			leftMotor.set(rotationalValue);
     			rightMotor.set(rotationalValue * -1);
+    			SmartDashboard.putString("DB/String 0", ""+rotationalValue);
     		}
     		else {
     			leftMotor.set(0);
