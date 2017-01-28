@@ -55,7 +55,8 @@ public class Robot extends IterativeRobot {
     			rotationalValue = (sensorReadingsThread.getDistanceFromTape() / 160) * 0.5;
     			leftMotor.set(rotationalValue);
     			rightMotor.set(rotationalValue * -1);
-    			SmartDashboard.putString("DB/String 0", ""+rotationalValue);
+    			SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
+    			SmartDashboard.putString("DB/String 1", "PX="+sensorReadingsThread.getDistanceFromTape());
     		}
     		else {
     			leftMotor.set(0);
