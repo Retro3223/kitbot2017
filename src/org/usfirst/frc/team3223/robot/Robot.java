@@ -73,8 +73,14 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
     	//robotConfig.forward(joystick.getRawAxis(1));
-    	turningStateMachine.run(); 
+    	
+    	turningStateMachine.run();
+    	SmartDashboard.putString("DB/String 0", "stuff");
+    	
     	//turningStateMachine.recorderContext.tick();
+    	
+    	//robotConfig.turn(.7);
+    	//Thread.sleep
     }
     
     /**

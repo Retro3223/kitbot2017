@@ -13,7 +13,7 @@ public class SensorManager {
 	public double getAngle() {
 		return ahrs.getAngle();
 	}
-	public double getAngleVelocity() {
+	public double getDeltaAngle() {
 		return ahrs.getRate();
 	}
 }
