@@ -7,18 +7,10 @@
 
 package org.usfirst.frc.team3223.robot;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.SPI;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,14 +22,10 @@ import edu.wpi.first.wpilibj.SPI;
 public class Robot extends IterativeRobot {
     
     private Joystick joystick;
-    long startTime = System.currentTimeMillis();
-    RobotConfiguration robotConfig;
-    NetworkTable networkTable;
-    TurningStateMachine turningStateMachine;
-    VisionState visionState;
-    SensorManager sensorManager;
+    private SensorReadingsThread sensorReadingsThread;
+    private SpeedController leftMotor;
+    private SpeedController rightMotor;
     
-
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -45,23 +33,42 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         // Initialize all subsystems
         joystick = new Joystick(0);
-        robotConfig = new RobotConfiguration();
-        networkTable = NetworkTable.getTable("SmartDashboard");
-        visionState = new VisionState();
-        sensorManager = new SensorManager();
-        visionState.thetaHighGoal = Math.toRadians(30);
-        turningStateMachine = new TurningStateMachine(visionState, sensorManager, robotConfig);
-        
-        
+        sensorReadingsThread = new SensorReadingsThread();
+        sensorReadingsThread.start();
+        leftMotor = new Talon(0);
+        rightMotor = new Talon(1);
     }
 
     public void autonomousInit() {
-        startTime = System.currentTimeMillis();
+        
     }
 
     /**
      * This function is called periodically during autonomous
      */
+    
+    public void autonomousPeriodic() {
+    	double rotationalValue;
+    	if (sensorReadingsThread.seesTape()) {
+    		if (sensorReadingsThread.getDistanceFromTape() < -10 || sensorReadingsThread.getDistanceFromTape() > 10) {
+    			rotationalValue = (sensorReadingsThread.getDistanceFromTape() / 160) * 0.5;
+    			leftMotor.set(rotationalValue);
+    			rightMotor.set(rotationalValue * -1);
+    		}
+    		else {
+    			leftMotor.set(0);
+    			rightMotor.set(0);
+    			
+    			//perform high goal
+    			//return control to teleop
+    		}
+    		//possibly sleep here for a couple ms if needed later
+    	}
+    	
+    	//leftMotor.set(sensorReadingsThread.getRotationValue()); //set to rotationValue
+    	//rightMotor.set((sensorReadingsThread.getRotationValue()) * -1); //set to inverse of rotationValue
+    	
+    }
 
     public void teleopInit() {
     	
@@ -71,16 +78,8 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	//robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
-    	//robotConfig.forward(joystick.getRawAxis(1));
     	
-    	turningStateMachine.run();
-    	SmartDashboard.putString("DB/String 0", "stuff");
     	
-    	//turningStateMachine.recorderContext.tick();
-    	
-    	//robotConfig.turn(.7);
-    	//Thread.sleep
     }
     
     /**
@@ -95,7 +94,7 @@ public class Robot extends IterativeRobot {
 	 * The log method puts interesting information to the SmartDashboard.
 	 */
     private void log() {
-        //wrist.log();
+       
         
     }
 }
