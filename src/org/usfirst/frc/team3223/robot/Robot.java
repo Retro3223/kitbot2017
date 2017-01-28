@@ -24,6 +24,7 @@ public class Robot extends IterativeRobot {
     
     private Joystick joystick;
     private SensorReadingsThread sensorReadingsThread;
+    private VisionState visionState;
     private SpeedController leftMotor;
     private SpeedController rightMotor;
     
@@ -36,6 +37,7 @@ public class Robot extends IterativeRobot {
         joystick = new Joystick(0);
         sensorReadingsThread = new SensorReadingsThread();
         sensorReadingsThread.start();
+        visionState = new VisionState();
         leftMotor = new Talon(0);
         rightMotor = new Talon(1);
     }
@@ -50,11 +52,22 @@ public class Robot extends IterativeRobot {
     
     public void autonomousPeriodic() {
     	double rotationalValue;
-    	if (sensorReadingsThread.seesTape()) {
-    		if (sensorReadingsThread.getDistanceFromTape() < -10 || sensorReadingsThread.getDistanceFromTape() > 10) {
-    			rotationalValue = (sensorReadingsThread.getDistanceFromTape() / 160) * 0.5;
-    			leftMotor.set(rotationalValue);
-    			rightMotor.set(rotationalValue * -1);
+    	boolean seesTape = visionState.seesHighGoal();
+    	SmartDashboard.putString("DB/String 3", "TP="+seesTape);
+    	if (seesTape) {
+    		double pixels = visionState.getxOffsetHighGoal();
+    		if (pixels < -10 || pixels > 10) {
+    			rotationalValue = ((pixels / 160) * 0.5);
+    			if(rotationalValue>0)
+    			{
+    				rotationalValue+=.2;
+    			}
+    			else
+    			{
+    				rotationalValue-=.2;
+    			}
+    			leftMotor.set(-rotationalValue);
+    			rightMotor.set(-rotationalValue);
     			SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
     			SmartDashboard.putString("DB/String 1", "PX="+sensorReadingsThread.getDistanceFromTape());
     		}

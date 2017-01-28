@@ -10,6 +10,7 @@ public class VisionState implements ITableListener {
 	
     public VisionState() {
     	NetworkTable networkTable = NetworkTable.getTable("SmartDashboard");
+    	networkTable.addTableListener(this);
     }
 
 	@Override
