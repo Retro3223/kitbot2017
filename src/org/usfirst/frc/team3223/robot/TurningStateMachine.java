@@ -60,7 +60,8 @@ public class TurningStateMachine {
 			
 			//should reset time Delta to 0 when the robot starts moving
 			if(!isMoving&&actualVelocity>1E-04){
-				profiler.t1+=timeDelta/1000.000;
+				profiler.t1+=(timeDelta/2)/1000.000;
+				profiler.t3 = profiler.t1;
 				isMoving = true;
 			}
 			
