@@ -1,4 +1,5 @@
 package org.usfirst.frc.team3223.robot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TurningStateMachine {
 	RotationalProfiler profiler;
@@ -14,6 +15,7 @@ public class TurningStateMachine {
 	RobotConfiguration robotConfig;
 	double actualVelocity;
 	long timeDelta;
+	boolean isMoving = false; // might move assignment to run() method
 	
 	public TurningStateMachine(VisionState visionState, SensorManager sensorManager, RobotConfiguration robotConfig) {
 		profiler = new RotationalProfiler();
@@ -54,10 +56,20 @@ public class TurningStateMachine {
 		case Drive:
 			timeDelta = currentTime - startTime;//how long it has been running from start of turn to now
 			velocity = profiler.getVelocity(timeDelta);//rad/s
-			actualVelocity = Math.toRadians(sensorManager.getDeltaAngle())/(currentTime-previousTime); //divides delta angle by delta time in rad/s
+			actualVelocity = Math.toRadians(sensorManager.getDeltaAngle())/((currentTime-previousTime)/1000.000); //divides delta angle by delta time in rad/s
+			
+			//should reset time Delta to 0 when the robot starts moving
+			if(!isMoving&&actualVelocity>1E-04){
+				profiler.t1+=timeDelta/1000.000;
+				isMoving = true;
+			}
+			
+			// fixes actualVelocity
 			if(actualVelocity<-180){
 				actualVelocity+=360;
 			}
+			
+			//Calculates error between expected velocity and actual velocity
 			double error = velocity-actualVelocity;
 			voltage = .5* error;
 			robotConfig.turn(voltage);
@@ -67,7 +79,12 @@ public class TurningStateMachine {
 			}
 			break;
 		case End:
+			//stops turning and resets for next call;
 			voltage = 0;
+			robotConfig.turn(voltage);
+			isMoving = false;
+			previousTime = 0;
+			currentTime = 0;		
 			break;
 		}
 	}

@@ -49,7 +49,7 @@ public class Robot extends IterativeRobot {
         networkTable = NetworkTable.getTable("SmartDashboard");
         visionState = new VisionState();
         sensorManager = new SensorManager();
-        visionState.thetaHighGoal = Math.toRadians(30);
+        visionState.thetaHighGoal = Math.toRadians(10);
         turningStateMachine = new TurningStateMachine(visionState, sensorManager, robotConfig);
         
         
@@ -75,7 +75,7 @@ public class Robot extends IterativeRobot {
     	//robotConfig.forward(joystick.getRawAxis(1));
     	
     	turningStateMachine.run();
-    	SmartDashboard.putString("DB/String 0", "stuff");
+    	
     	
     	//turningStateMachine.recorderContext.tick();
     	
