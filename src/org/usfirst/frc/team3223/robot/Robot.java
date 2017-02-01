@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -26,6 +27,8 @@ public class Robot extends IterativeRobot {
    private VisionState visionState;
    private SpeedController leftMotor;
    private SpeedController rightMotor;
+   private RobotDrive robotDrive;
+   private int mode = 0;//0 = Tele-Op, 1 = findHighGoal
    private int bounds = 10;
    private double factor = .5;
    private double bump = .2;
@@ -40,6 +43,7 @@ public class Robot extends IterativeRobot {
       visionState = new VisionState();
       leftMotor = new Talon(0);
       rightMotor = new Talon(1);
+      robotDrive = new RobotDrive(leftMotor,rightMotor);
       //rightMotor.setInverted(true);
       SmartDashboard.putString("DB/String 5","Bounds");
       SmartDashboard.putString("DB/String 6","Bump");
@@ -56,65 +60,75 @@ public class Robot extends IterativeRobot {
      */
     
    public void autonomousPeriodic() {
-      double rotationalValue;
-      boolean seesTape = visionState.seesHighGoal();
-      
-      SmartDashboard.putString("DB/String 2", "TP="+seesTape);
-      bounds = (int)SmartDashboard.getNumber("DB/Slider 0",10.0);
-      bump = SmartDashboard.getNumber("DB/Slider 1",.2);
-      factor = SmartDashboard.getNumber("DB/Slider 2",.5);
-      boolean rightInvert = SmartDashboard.getBoolean("DB/Button 0",true);
-      
-      if (seesTape) {
-         double pixels = visionState.getxOffsetHighGoal();
-         if (pixels < bounds*-1 || pixels > bounds) {
-            rotationalValue = ((pixels / 160) * factor);//Adjustable
-            if(rotationalValue>0)
-            {
-               rotationalValue+=bump;//get over hump
-            }
-            else
-            {
-               rotationalValue-=bump;
-            }
-            
-            leftMotor.set(rotationalValue);
-            if(rightInvert)
-            	rightMotor.set(-1*rotationalValue);
-            else
-            	rightMotor.set(rotationalValue);
-            
-            SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
-            SmartDashboard.putString("DB/String 1", "PX="+visionState.getxOffsetHighGoal());
-         }
-         else {
-            leftMotor.set(0);
-            rightMotor.set(0);
          	
-         	//perform high goal
-         	//return control to teleop
-         }
-      	//possibly sleep here for a couple ms if needed later
-      }
-      else
-      {
-         leftMotor.set(0);
-         rightMotor.set(0);
-      }
-    	//leftMotor.set(sensorReadingsThread.getRotationValue()); //set to rotationValue
-    	//rightMotor.set((sensorReadingsThread.getRotationValue()) * -1); //set to inverse of rotationValue
-    	
    }
+   private void findHighGoal()
+   {
+	   double rotationalValue;
+	      boolean seesTape = visionState.seesHighGoal();
+	      
+	      SmartDashboard.putString("DB/String 2", "TP="+seesTape);
+	      bounds = (int)SmartDashboard.getNumber("DB/Slider 0",10.0);
+	      bump = SmartDashboard.getNumber("DB/Slider 1",.2);
+	      factor = SmartDashboard.getNumber("DB/Slider 2",.5);
+	      
+	      if (seesTape) {
+	         double pixels = visionState.getxOffsetHighGoal();
+	         if (pixels < bounds*-1 || pixels > bounds) {
+	            rotationalValue = ((pixels / 160) * factor);//Adjustable
+	            if(rotationalValue>0)
+	            {
+	               rotationalValue+=bump;//get over hump
+	            }
+	            else
+	            {
+	               rotationalValue-=bump;
+	            }
+	            
+	            leftMotor.set(-1*rotationalValue);
+	            rightMotor.set(-1*rotationalValue);
+	            	
+	            SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
+	            SmartDashboard.putString("DB/String 1", "PX="+visionState.getxOffsetHighGoal());
+	         }
+	         else {
+	            leftMotor.set(0);
+	            rightMotor.set(0);
+	         	mode = 0;
+	         	//perform high goal
+	         	//return control to teleop
+	         }
+	      	//possibly sleep here for a couple ms if needed later
+	      }
+	      else
+	      {
+	         leftMotor.set(0);
+	         rightMotor.set(0);
+	      }
+	    	//leftMotor.set(sensorReadingsThread.getRotationValue()); //set to rotationValue
+	    	//rightMotor.set((sensorReadingsThread.getRotationValue()) * -1); //set to inverse of rotationValue
 
+   }
    public void teleopInit() {
-    	
+    	mode = 0;
    }
 
     /**
      * This function is called periodically during operator control
      */
    public void teleopPeriodic() {
-    	
+    	switch(mode)
+    	{
+    	case 0:
+    		robotDrive.arcadeDrive(joystick.getRawAxis(0),joystick.getRawAxis(1));
+    		if(joystick.getRawButton(3))
+    			mode=1;
+    		break;
+    	case 1:
+    		findHighGoal();
+    		break;
+    	}
+    	SmartDashboard.putString("DB/4", "Mode:"+mode);
     	
    }
     
