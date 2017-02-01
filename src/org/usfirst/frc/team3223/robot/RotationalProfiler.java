@@ -84,7 +84,10 @@ public class RotationalProfiler {
 		return (-b + Math.sqrt(b * b - 4 * a * c)) / 2 / a;
 	}
 	
-	//gives velocity in rad/s
+	/**
+	 * @param timeMs
+	 * @return velocity at timeMs in rad/s
+	 */
 	public double getVelocity(long timeMs){
         double time = timeMs/1000.00;
 		if(0 <= time && time < t1) {

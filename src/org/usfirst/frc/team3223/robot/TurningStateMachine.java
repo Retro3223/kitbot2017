@@ -1,20 +1,21 @@
 package org.usfirst.frc.team3223.robot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TurningStateMachine {
 	RotationalProfiler profiler;
 	VisionState visionState;
 	TurningState state;
-	long startTime;
-	long previousTime = 0;
-	long currentTime = 0;
+	long startTime; // ms
+	long currentTime = 0; // ms
+	int tickCount = 0;
 	public RecorderContext recorderContext;
-	double velocity;
+	double velocity; // rad/sec
 	double voltage;
+	double initialHeading; // rad
+	double desiredHeading; // rad
 	SensorManager sensorManager;
 	RobotConfiguration robotConfig;
-	double actualVelocity;
-	long timeDelta;
+	double actualVelocity; // rad/sec
+	long timeDelta; // ms
 	boolean isMoving = false; // might move assignment to run() method
 	
 	public TurningStateMachine(VisionState visionState, SensorManager sensorManager, RobotConfiguration robotConfig) {
@@ -41,7 +42,6 @@ public class TurningStateMachine {
 	}
 	
 	public void run() {
-		previousTime = currentTime;
 		currentTime = System.currentTimeMillis();
 		switch(state) {
 		case Start:
@@ -49,31 +49,37 @@ public class TurningStateMachine {
 			break;
 		case Calculate:
 			double angle = visionState.thetaHighGoal;
+			initialHeading = sensorManager.headingRad();
+			desiredHeading = initialHeading + angle;
 			profiler.calculate(angle);
 			startTime = currentTime;
+			tickCount = 0;
+			
 			state = TurningState.Drive;
 			break;
 		case Drive:
 			timeDelta = currentTime - startTime;//how long it has been running from start of turn to now
+			
+			actualVelocity = sensorManager.getAngularVelocity();
+			
+			if(tickCount == 5) {
+				double currentHeading = sensorManager.headingRad();
+				
+				// todo: massage actual before giving it to profiler
+				profiler.recalculate(desiredHeading-currentHeading, actualVelocity);
+				tickCount = 0;
+			}else{
+				tickCount ++;
+			}
+			
 			velocity = profiler.getVelocity(timeDelta);//rad/s
-			actualVelocity = Math.toRadians(sensorManager.getDeltaAngle())/((currentTime-previousTime)/1000.000); //divides delta angle by delta time in rad/s
-			
-			//should reset time Delta to 0 when the robot starts moving
-			if(!isMoving&&actualVelocity>1E-04){
-				profiler.t1+=timeDelta/1000.000;
-				isMoving = true;
-			}
-			
-			// fixes actualVelocity
-			if(actualVelocity<-180){
-				actualVelocity+=360;
-			}
 			
 			//Calculates error between expected velocity and actual velocity
 			double error = velocity-actualVelocity;
 			voltage = .5* error;
 			robotConfig.turn(voltage);
 			recorderContext.tick();
+			
 			if(profiler.isDone(timeDelta)) {
 				state = TurningState.End;
 			}
@@ -81,10 +87,7 @@ public class TurningStateMachine {
 		case End:
 			//stops turning and resets for next call;
 			voltage = 0;
-			robotConfig.turn(voltage);
-			isMoving = false;
-			previousTime = 0;
-			currentTime = 0;		
+			robotConfig.turn(voltage);	
 			break;
 		}
 	}

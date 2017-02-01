@@ -71,6 +71,7 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+    	sensorManager.tick();
     	//robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
     	//robotConfig.forward(joystick.getRawAxis(1));
     	
