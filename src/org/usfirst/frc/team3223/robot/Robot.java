@@ -30,8 +30,8 @@ public class Robot extends IterativeRobot {
    private RobotDrive robotDrive;
    private int mode = 0;//0 = Tele-Op, 1 = findHighGoal
    private int bounds = 10;
-   private double factor = .5;
-   private double bump = .2;
+   private double factor = .3;
+   private double bump = .4;
     
     /**
      * This function is run when the robot is first started up and should be
@@ -68,9 +68,9 @@ public class Robot extends IterativeRobot {
 	      boolean seesTape = visionState.seesHighGoal();
 	      
 	      SmartDashboard.putString("DB/String 2", "TP="+seesTape);
-	      bounds = (int)SmartDashboard.getNumber("DB/Slider 0",10.0);
-	      bump = SmartDashboard.getNumber("DB/Slider 1",.2);
-	      factor = SmartDashboard.getNumber("DB/Slider 2",.5);
+	      bounds = (int)SmartDashboard.getNumber("DB/Slider 0",bounds);
+	      bump = SmartDashboard.getNumber("DB/Slider 1",bump);
+	      factor = SmartDashboard.getNumber("DB/Slider 2",factor);
 	      
 	      if (seesTape) {
 	         double pixels = visionState.getxOffsetHighGoal();
