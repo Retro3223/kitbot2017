@@ -22,95 +22,102 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends IterativeRobot {
     
-    private Joystick joystick;
-    private SensorReadingsThread sensorReadingsThread;
-    private VisionState visionState;
-    private SpeedController leftMotor;
-    private SpeedController rightMotor;
+   private Joystick joystick;
+   private SensorReadingsThread sensorReadingsThread;
+   private VisionState visionState;
+   private SpeedController leftMotor;
+   private SpeedController rightMotor;
+   private int bounds = 10;
     
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
-    public void robotInit() {
+   public void robotInit() {
         // Initialize all subsystems
-        joystick = new Joystick(0);
-        sensorReadingsThread = new SensorReadingsThread();
-        sensorReadingsThread.start();
-        visionState = new VisionState();
-        leftMotor = new Talon(0);
-        rightMotor = new Talon(1);
-    }
+      joystick = new Joystick(0);
+      sensorReadingsThread = new SensorReadingsThread();
+      sensorReadingsThread.start();
+      visionState = new VisionState();
+      leftMotor = new Talon(0);
+      rightMotor = new Talon(1);
+      rightMotor.setInverted(true);
+   }
 
-    public void autonomousInit() {
+   public void autonomousInit() {
         
-    }
+   }
 
     /**
      * This function is called periodically during autonomous
      */
     
-    public void autonomousPeriodic() {
-    	double rotationalValue;
-    	boolean seesTape = visionState.seesHighGoal();
-    	SmartDashboard.putString("DB/String 3", "TP="+seesTape);
-    	if (seesTape) {
-    		double pixels = visionState.getxOffsetHighGoal();
-    		if (pixels < -10 || pixels > 10) {
-    			rotationalValue = ((pixels / 160) * 0.5);
-    			if(rotationalValue>0)
-    			{
-    				rotationalValue+=.2;
-    			}
-    			else
-    			{
-    				rotationalValue-=.2;
-    			}
-    			leftMotor.set(-rotationalValue);
-    			rightMotor.set(-rotationalValue);
-    			SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
-    			SmartDashboard.putString("DB/String 1", "PX="+sensorReadingsThread.getDistanceFromTape());
-    		}
-    		else {
-    			leftMotor.set(0);
-    			rightMotor.set(0);
-    			
-    			//perform high goal
-    			//return control to teleop
-    		}
-    		//possibly sleep here for a couple ms if needed later
-    	}
-    	
+   public void autonomousPeriodic() {
+      double rotationalValue;
+      boolean seesTape = visionState.seesHighGoal();
+      SmartDashboard.putString("DB/String 3", "TP="+seesTape);
+      bounds = SmartDashboard.getNumber("DB/Slider 0",10.0);
+      if (seesTape) {
+         double pixels = visionState.getxOffsetHighGoal();
+         if (pixels < bounds*-1 || pixels > bounds) {
+            rotationalValue = ((pixels / 160) * 0.5);//Adjustable
+            if(rotationalValue>0)
+            {
+               rotationalValue+=.2;//get over hump
+            }
+            else
+            {
+               rotationalValue-=.2;
+            }
+            leftMotor.set(rotationalValue);
+            rightMotor.set(rotationalValue);
+            SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
+            SmartDashboard.putString("DB/String 1", "PX="+sensorReadingsThread.getDistanceFromTape());
+         }
+         else {
+            leftMotor.set(0);
+            rightMotor.set(0);
+         	
+         	//perform high goal
+         	//return control to teleop
+         }
+      	//possibly sleep here for a couple ms if needed later
+      }
+      else
+      {
+         leftMotor.set(0);
+         rightMotor.set(0);
+      }
     	//leftMotor.set(sensorReadingsThread.getRotationValue()); //set to rotationValue
     	//rightMotor.set((sensorReadingsThread.getRotationValue()) * -1); //set to inverse of rotationValue
     	
-    }
+   }
 
-    public void teleopInit() {
+   public void teleopInit() {
     	
-    }
+   }
 
     /**
      * This function is called periodically during operator control
      */
-    public void teleopPeriodic() {
+   public void teleopPeriodic() {
     	
     	
-    }
+   }
     
     /**
      * This function is called periodically during test mode
      */
-    public void testPeriodic() {
+   public void testPeriodic() {
     	
         
-    }
+   }
 
 	/**
 	 * The log method puts interesting information to the SmartDashboard.
 	 */
-    private void log() {
+   private void log() {
        
         
-    }
+   }
 }
