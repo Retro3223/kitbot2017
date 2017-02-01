@@ -6,25 +6,25 @@ import edu.wpi.first.wpilibj.tables.ITableListener;
 
 public class VisionState implements ITableListener {
 	public boolean seesHighGoal;
-    public long seesHighGoalLastUpdated;
-	public double xOffsetHighGoal;
+    public long seesHighGoalLastUpdated; 		// ms
+	public double xOffsetHighGoal;				// mm
     public long xOffsetHighGoalLastUpdated;
-	public double zOffsetHighGoal;
+	public double zOffsetHighGoal;				// mm
     public long zOffsetHighGoalLastUpdated;
-	public double thetaHighGoal;
+	public double thetaHighGoal;				// rad
     public long thetaHighGoalLastUpdated;
-    public double psiBoiler;
+    public double psiBoiler;					// rad
     public long psiBoilerLastUpdated;
 
     public boolean seesLift;
     public long seesLiftLastUpdated;
-    public double xOffsetLift;
+    public double xOffsetLift;					// mm
     public long xOffsetLiftLastUpdated;
-    public double zOffsetLift;
+    public double zOffsetLift;					// mm
     public long zOffsetLiftLastUpdated;
-    public double thetaLift;
+    public double thetaLift;					// rad
     public long thetaLiftLastUpdated;
-    public double psiLift;
+    public double psiLift;						// rad
     public long psiLiftLastUpdated;
     
     public VisionState() {
