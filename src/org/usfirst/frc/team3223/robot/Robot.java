@@ -120,7 +120,9 @@ public class Robot extends IterativeRobot {
     	switch(mode)
     	{
     	case 0:
-    		robotDrive.arcadeDrive(joystick.getRawAxis(0),joystick.getRawAxis(1));
+    		leftMotor.set(joystick.getRawAxis(1));
+    		rightMotor.set(joystick.getRawAxis(5));
+    		//robotDrive.arcadeDrive(joystick.getRawAxis(0),joystick.getRawAxis(1));
     		if(joystick.getRawButton(3))
     			mode=1;
     		break;
