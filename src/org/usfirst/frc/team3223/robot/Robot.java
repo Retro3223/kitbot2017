@@ -23,11 +23,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
     
    private Joystick joystick;
-   private SensorReadingsThread sensorReadingsThread;
    private VisionState visionState;
    private SpeedController leftMotor;
    private SpeedController rightMotor;
    private int bounds = 10;
+   private double factor = .5;
+   private double bump = .2;
     
     /**
      * This function is run when the robot is first started up and should be
@@ -36,12 +37,14 @@ public class Robot extends IterativeRobot {
    public void robotInit() {
         // Initialize all subsystems
       joystick = new Joystick(0);
-      sensorReadingsThread = new SensorReadingsThread();
-      sensorReadingsThread.start();
       visionState = new VisionState();
       leftMotor = new Talon(0);
       rightMotor = new Talon(1);
-      rightMotor.setInverted(true);
+      //rightMotor.setInverted(true);
+      SmartDashboard.putString("DB/String 5","Bounds");
+      SmartDashboard.putString("DB/String 6","Bump");
+      SmartDashboard.putString("DB/String 7","Factor");
+
    }
 
    public void autonomousInit() {
@@ -55,24 +58,34 @@ public class Robot extends IterativeRobot {
    public void autonomousPeriodic() {
       double rotationalValue;
       boolean seesTape = visionState.seesHighGoal();
-      SmartDashboard.putString("DB/String 3", "TP="+seesTape);
-      bounds = SmartDashboard.getNumber("DB/Slider 0",10.0);
+      
+      SmartDashboard.putString("DB/String 2", "TP="+seesTape);
+      bounds = (int)SmartDashboard.getNumber("DB/Slider 0",10.0);
+      bump = SmartDashboard.getNumber("DB/Slider 1",.2);
+      factor = SmartDashboard.getNumber("DB/Slider 2",.5);
+      boolean rightInvert = SmartDashboard.getBoolean("DB/Button 0",true);
+      
       if (seesTape) {
          double pixels = visionState.getxOffsetHighGoal();
          if (pixels < bounds*-1 || pixels > bounds) {
-            rotationalValue = ((pixels / 160) * 0.5);//Adjustable
+            rotationalValue = ((pixels / 160) * factor);//Adjustable
             if(rotationalValue>0)
             {
-               rotationalValue+=.2;//get over hump
+               rotationalValue+=bump;//get over hump
             }
             else
             {
-               rotationalValue-=.2;
+               rotationalValue-=bump;
             }
+            
             leftMotor.set(rotationalValue);
-            rightMotor.set(rotationalValue);
+            if(rightInvert)
+            	rightMotor.set(-1*rotationalValue);
+            else
+            	rightMotor.set(rotationalValue);
+            
             SmartDashboard.putString("DB/String 0", "RV="+rotationalValue);
-            SmartDashboard.putString("DB/String 1", "PX="+sensorReadingsThread.getDistanceFromTape());
+            SmartDashboard.putString("DB/String 1", "PX="+visionState.getxOffsetHighGoal());
          }
          else {
             leftMotor.set(0);
