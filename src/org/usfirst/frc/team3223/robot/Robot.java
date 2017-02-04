@@ -50,7 +50,7 @@ public class Robot extends IterativeRobot {
         networkTable = NetworkTable.getTable("SmartDashboard");
         visionState = new VisionState();
         sensorManager = new SensorManager();
-        visionState.thetaHighGoal = Math.toRadians(180);
+        visionState.thetaHighGoal = Math.toRadians(-5);
         turningStateMachine = new TurningStateMachine(visionState, sensorManager, robotConfig);
         
         
@@ -88,13 +88,15 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putString("DB/String 2","Countdown:" + countDown);
     	if(joystick.getRawButton(1) && countDown<=0 && turningStateMachine.isDone())
     	{
-    		turningStateMachine.state = TurningState.Start;
-    		visionState.thetaHighGoal = Math.toRadians(Integer.parseInt(SmartDashboard.getString("DB/String 1","180")));
+    		turningStateMachine.reset();
+    		visionState.thetaHighGoal = Math.toRadians(Float.parseFloat(SmartDashboard.getString("DB/String 1","180")));
     		countDown = 100;
     	}
     	if(isRunning)
     	{
     		turningStateMachine.run();
+    		SmartDashboard.putString("DB/String 5", "des:"+Math.toDegrees(turningStateMachine.desiredHeading));
+    		SmartDashboard.putString("DB/String 6", "current:"+sensorManager.getAngle());
     	}
     	//turningStateMachine.recorderContext.tick();
     	

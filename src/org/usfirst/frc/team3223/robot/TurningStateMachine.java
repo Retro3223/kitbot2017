@@ -19,6 +19,15 @@ public class TurningStateMachine {
 	boolean isMoving = false; // might move assignment to run() method
 	boolean isSmallHeading;
 	
+	public double normalizeAngle(double givenAngle){
+		if(givenAngle>=-Math.PI){
+			return (givenAngle+Math.PI)%(2*Math.PI)-Math.PI;
+		}else{
+			return (givenAngle+Math.PI)%(2*Math.PI)+Math.PI;
+		}
+		
+	}
+	
 	public TurningStateMachine(VisionState visionState, SensorManager sensorManager, RobotConfiguration robotConfig) {
 		profiler = new RotationalProfiler();
 		this.visionState = visionState;
@@ -42,6 +51,10 @@ public class TurningStateMachine {
 		
 	}
 	
+	public void reset() {
+		state = TurningState.Start;
+		this.profiler.reset();
+	}
 	public void run() {
 		currentTime = System.currentTimeMillis();
 		switch(state) {
@@ -50,9 +63,10 @@ public class TurningStateMachine {
 			break;
 		case Calculate:
 			double angle = visionState.thetaHighGoal;
-			isSmallHeading=angle<=Math.toRadians(5);
+			isSmallHeading=Math.abs(angle)<=Math.toRadians(5);
 			initialHeading = sensorManager.headingRad();
 			desiredHeading = initialHeading + angle;
+			desiredHeading = normalizeAngle(desiredHeading);
 			profiler.calculate(angle);
 			startTime = currentTime;
 			tickCount = 0;
@@ -71,7 +85,8 @@ public class TurningStateMachine {
 					startTime = currentTime;
 					timeDelta = 0;
 					// todo: massage actual before giving it to profiler
-					profiler.recalculate(desiredHeading-currentHeading, velocity);
+					double normalizedAngle = normalizeAngle(desiredHeading-currentHeading);
+					profiler.recalculate(normalizedAngle, velocity);
 					tickCount = 0;
 				}else{
 					tickCount ++;
