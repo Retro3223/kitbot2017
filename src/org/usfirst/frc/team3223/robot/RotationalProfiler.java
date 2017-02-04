@@ -4,6 +4,8 @@ public class RotationalProfiler {
 	double accel = 0.01*1000; //rad/s^2
 	double vMaxTra = 2.3;//rad/s
 	boolean isTrapezoid;
+	double initialVelocity;
+	boolean isOnlyDeccelerating;
 	
 	/**
 	 * time, in seconds, of acceleration phase
@@ -27,6 +29,8 @@ public class RotationalProfiler {
 	 * @param angle the desired distance to travel in radians
 	 */
 	public void calculate(double angle){
+		isOnlyDeccelerating = false;
+		initialVelocity = 0;
 		vMaxTri = accel*Math.sqrt(angle/accel);
 		isTrapezoid = vMaxTri > vMaxTra;
 		if(isTrapezoid){
@@ -47,11 +51,13 @@ public class RotationalProfiler {
 	 * @param currentVelocity radians/second
 	 */
 	public void recalculate(double remainingAngle, double currentVelocity) {
+		this.initialVelocity = currentVelocity;
 		// if we started decelerating now, this is the shortest distance we can travel
 		double minimumAngle = currentVelocity * currentVelocity / 2 / accel;
 		
 		if(minimumAngle > remainingAngle) {
 			// and we're going to overshoot.
+			isOnlyDeccelerating = true;
 			isTrapezoid = false;
 			t1 = t2 = 0;
 			t3 = currentVelocity / accel;
@@ -91,11 +97,14 @@ public class RotationalProfiler {
 	public double getVelocity(long timeMs){
         double time = timeMs/1000.00;
 		if(0 <= time && time < t1) {
-            return accel * time;
+            return accel * time + initialVelocity;
         }else if(t1 <= time && time < t1 + t2) {
             return vMaxTra;
         }else if(t1 + t2 <= time && time < t1 + t2 + t3) {
-            if(isTrapezoid) {
+            if(isOnlyDeccelerating){
+            	return initialVelocity - accel * time;
+            }
+        	if(isTrapezoid) {
                 return vMaxTra - accel * (time - (t1 + t2));
             }else{
                 return vMaxTri - accel * (time - t1);

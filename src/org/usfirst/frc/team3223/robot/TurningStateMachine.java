@@ -17,6 +17,7 @@ public class TurningStateMachine {
 	double actualVelocity; // rad/sec
 	long timeDelta; // ms
 	boolean isMoving = false; // might move assignment to run() method
+	boolean isSmallHeading;
 	
 	public TurningStateMachine(VisionState visionState, SensorManager sensorManager, RobotConfiguration robotConfig) {
 		profiler = new RotationalProfiler();
@@ -49,6 +50,7 @@ public class TurningStateMachine {
 			break;
 		case Calculate:
 			double angle = visionState.thetaHighGoal;
+			isSmallHeading=angle<=Math.toRadians(5);
 			initialHeading = sensorManager.headingRad();
 			desiredHeading = initialHeading + angle;
 			profiler.calculate(angle);
@@ -62,17 +64,24 @@ public class TurningStateMachine {
 			
 			actualVelocity = sensorManager.getAngularVelocity();
 			
-			if(tickCount == 5) {
-				double currentHeading = sensorManager.headingRad();
-				
-				// todo: massage actual before giving it to profiler
-				profiler.recalculate(desiredHeading-currentHeading, actualVelocity);
-				tickCount = 0;
-			}else{
-				tickCount ++;
-			}
-			
 			velocity = profiler.getVelocity(timeDelta);//rad/s
+			if(!isSmallHeading){
+				if(tickCount == 5) {
+					double currentHeading = sensorManager.headingRad();
+					startTime = currentTime;
+					timeDelta = 0;
+					// todo: massage actual before giving it to profiler
+					profiler.recalculate(desiredHeading-currentHeading, velocity);
+					tickCount = 0;
+				}else{
+					tickCount ++;
+				}
+			} else{
+				if(!isMoving&&actualVelocity>1E-04){
+					profiler.t1+=timeDelta/1000.000;
+					isMoving = true;
+				}
+			}
 			
 			//Calculates error between expected velocity and actual velocity
 			double error = velocity-actualVelocity;
