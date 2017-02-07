@@ -9,6 +9,7 @@ package org.usfirst.frc.team3223.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -38,6 +39,7 @@ public class Robot extends IterativeRobot {
     SensorManager sensorManager;
     private boolean isRunning = false;
     private int countDown = 100;
+    Encoder encoder = new Encoder(7,8, false, Encoder.EncodingType.k1X);
 
     /**
      * This function is run when the robot is first started up and should be
@@ -72,7 +74,11 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-    	sensorManager.tick();
+    	networkTable.putNumber("Count", encoder.get());
+    	networkTable.putNumber("Raw Count", encoder.getRaw());
+    	SmartDashboard.putString("DB/String 0", "Count:" + encoder.get());
+    	SmartDashboard.putString("DB/String 1", "Count:" + encoder.getRaw());
+    	/*sensorManager.tick();
     	//robotConfig.turn(joystick.getRawAxis(3)-joystick.getRawAxis(2));
     	//robotConfig.forward(joystick.getRawAxis(1));
     	if(joystick.getRawButton(3))
@@ -97,7 +103,7 @@ public class Robot extends IterativeRobot {
     		turningStateMachine.run();
     		SmartDashboard.putString("DB/String 5", "des:"+Math.toDegrees(turningStateMachine.desiredHeading));
     		SmartDashboard.putString("DB/String 6", "current:"+sensorManager.getAngle());
-    	}
+    	}*/
     	//turningStateMachine.recorderContext.tick();
     	
     	//robotConfig.turn(.7);
